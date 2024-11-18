@@ -1,4 +1,4 @@
-# quiknote
+# QuikNote
 
 A new Flutter project.
 
