@@ -1,12 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_locales/flutter_locales.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:provider/provider.dart';
-import 'package:quiknote/Screens/get_started.dart';
+import 'package:quiknote/components/modul.dart';
 import 'package:quiknote/components/theme/theme.dart';
-import 'package:quiknote/components/theme/theme_provider.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   Locales.init(['en', 'fa', 'ps']);
   runApp(

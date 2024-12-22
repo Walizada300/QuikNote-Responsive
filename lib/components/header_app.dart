@@ -1,12 +1,20 @@
+import 'package:quiknote/bloc/note_cubit/note_cubit.dart';
+import 'package:quiknote/sqliteDB/quiknote_services.dart';
+
 import '../components/modul.dart';
 
 class HeaderOfApp extends StatelessWidget {
   const HeaderOfApp({
     super.key,
     required TextEditingController searchController,
+    required this.onGridView,
+    required this.onListView,
   }) : _searchController = searchController;
 
   final TextEditingController _searchController;
+
+  final VoidCallback? onGridView;
+  final VoidCallback? onListView;
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +41,10 @@ class HeaderOfApp extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 10),
-        ViewButton(),
+        ViewButton(
+          onGridView: onGridView,
+          onListView: onListView,
+        ),
       ],
     );
   }
@@ -49,7 +60,7 @@ class NewNoteDialog extends StatelessWidget {
     return AlertDialog(
       backgroundColor: context.backgroundColor,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(20),
         side: BorderSide(color: context.dividerColor),
       ),
       title: Row(
@@ -76,34 +87,197 @@ class NewNoteDialog extends StatelessWidget {
   }
 }
 
-class AddNoteForm extends StatelessWidget {
-  const AddNoteForm({
+class AddNoteForm extends StatefulWidget {
+  @override
+  State<AddNoteForm> createState() => _AddNoteFormState();
+}
+
+class _AddNoteFormState extends State<AddNoteForm> {
+  final _titleController = TextEditingController();
+
+  final _contentController = TextEditingController();
+
+  final _formKey = GlobalKey<FormState>();
+
+  final FocusScopeNode focusScopeNode = FocusScopeNode();
+
+  final FocusNode titleFocus = FocusNode();
+  String colorController = "0xffFEBE66";
+  String currentDate = DateTime.now().year.toString() +
+      "-" +
+      DateTime.now().month.toString() +
+      "-" +
+      DateTime.now().day.toString();
+
+  NoteCubit _noteCubit = NoteCubit(QuiknoteServices());
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  final QuiknoteServices _repository = QuiknoteServices();
+  @override
+  Widget build(BuildContext context) {
+    return Form(
+      key: _formKey,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: BTextInput(
+                  hint: "Title",
+                  label: "Title",
+                  maxline: 1,
+                  focusNode: titleFocus,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return Locales.string(context, 'enter_details');
+                    }
+
+                    return null;
+                  },
+                  controller: _titleController,
+                  textStyle: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                  ),
+                ),
+              ),
+              PopupMenuButton(
+                icon: Icon(
+                  Icons.color_lens,
+                  color: Color(int.parse(colorController)),
+                ),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10)),
+                itemBuilder: (BuildContext context) {
+                  return [
+                    PopupMenuItem(
+                      onTap: () {
+                        setState(() {
+                          colorController = "0xffFEBE66";
+                        });
+                      },
+                      child: ColorItem(
+                        color: Color(0xffFEBE66),
+                      ),
+                    ),
+                    PopupMenuItem(
+                      onTap: () {
+                        setState(() {
+                          colorController = "0xff104e8f";
+                        });
+                      },
+                      child: ColorItem(
+                        color: Color(0xff104e8f),
+                      ),
+                    ),
+                    PopupMenuItem(
+                      onTap: () {
+                        setState(() {
+                          colorController = "0xff00CDAC";
+                        });
+                      },
+                      child: ColorItem(
+                        color: Color(0xff00CDAC),
+                      ),
+                    ),
+                    PopupMenuItem(
+                      onTap: () {
+                        setState(() {
+                          colorController = "0xffFF5FA7";
+                        });
+                      },
+                      child: ColorItem(
+                        color: Color(0xffFF5FA7),
+                      ),
+                    ),
+                    PopupMenuItem(
+                      onTap: () {
+                        setState(() {
+                          colorController = "0xffe26939";
+                        });
+                      },
+                      child: ColorItem(
+                        color: Color(0xffe26939),
+                      ),
+                    ),
+                  ];
+                },
+              )
+            ],
+          ),
+          Divider(),
+          BTextInput(
+            hint: "Content",
+            label: "Content",
+            maxline: context.isDesktop ? 12 : 10,
+            controller: _contentController,
+          ),
+          context.mediumSpaceBox,
+          BFillIconButton(
+            label: "Add Note",
+            icon: Icons.add,
+            onPress: () async {
+              try {
+                if (_formKey.currentState!.validate()) {
+                  Map<String, dynamic> noteData = {
+                    'title': _titleController.text,
+                    'content': _contentController.text,
+                    'color': colorController,
+                    'created': currentDate,
+                    'isRemoved': 0,
+                  };
+                  try {
+                    await _noteCubit.insertNoteAndFetch(noteData);
+                  } catch (e) {
+                    print("Error: $e");
+                  }
+                  Navigator.pop(context);
+                  context.isDesktop
+                      ? ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: BText(text: "Successfull Saved."),
+                            behavior: SnackBarBehavior.floating,
+                            backgroundColor: context.positiveColor,
+                            margin: EdgeInsets.symmetric(
+                                horizontal: 400, vertical: 20),
+                          ),
+                        )
+                      : print("Mobile");
+                }
+              } catch (e) {
+                print(e);
+              }
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class ColorItem extends StatelessWidget {
+  const ColorItem({
     super.key,
+    required this.color,
   });
+
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        BTextInput(
-          hint: "Title",
-          label: "Title",
-          maxline: 1,
-        ),
-        context.mediumSpaceBox,
-        BTextInput(
-          hint: "Content",
-          label: "Context",
-          maxline: 10,
-        ),
-        context.mediumSpaceBox,
-        BFillIconButton(
-          label: "Add Note",
-          icon: Icons.add,
-          onPress: () {},
-        ),
-      ],
+    return Container(
+      width: 400,
+      height: 40,
+      decoration: BoxDecoration(
+        color: color!.withAlpha(50),
+        border: Border.all(color: color!, width: 2),
+        borderRadius: BorderRadius.circular(6),
+      ),
     );
   }
 }
@@ -115,34 +289,47 @@ class BTextInput extends StatelessWidget {
     required this.label,
     required this.hint,
     this.maxline,
+    this.textStyle,
+    this.lenghtChar,
+    this.onChange,
+    this.onTap,
+    this.focusNode,
+    this.keyboardType,
+    this.validator,
   });
   final TextEditingController? controller;
   final String? label;
   final String? hint;
   final int? maxline;
+  final TextStyle? textStyle;
+  final int? lenghtChar;
+  final ValueChanged<String>? onChange;
+  final VoidCallback? onTap;
+  final FocusNode? focusNode;
+  final TextInputType? keyboardType;
+  final String? Function(String?)? validator;
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
+    return TextFormField(
       textAlignVertical: TextAlignVertical.top,
       maxLines: maxline,
       controller: controller,
+      validator: validator,
+      onChanged: onChange,
+      onTap: onTap,
+      focusNode: focusNode,
+      keyboardType: keyboardType,
       decoration: InputDecoration(
         hintText: Locales.string(context, hint!),
-        hintStyle: const TextStyle(fontSize: 18),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(6),
-          borderSide: BorderSide(color: context.dividerColor),
-        ),
-        label: BText(text: label),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(6),
-          borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
-        ),
-        contentPadding:
-            const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        hintStyle: TextStyle(
+            fontSize: 18,
+            color: context.disableColor,
+            fontWeight: FontWeight.w500),
+        border: OutlineInputBorder(borderSide: BorderSide.none),
+        contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 0),
       ),
-      style: const TextStyle(fontSize: 18),
+      style: textStyle ?? const TextStyle(fontSize: 16),
     );
   }
 }
@@ -163,6 +350,7 @@ class BFillIconButton extends StatelessWidget {
     return ElevatedButton(
       onPressed: onPress,
       style: ElevatedButton.styleFrom(
+        backgroundColor: context.primaryColor,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(6),
         ),
@@ -172,11 +360,15 @@ class BFillIconButton extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon),
+            Icon(
+              icon,
+              color: context.backgroundColor,
+            ),
             const SizedBox(width: 10),
             BText(
               text: label,
               fontSize: 18,
+              color: context.backgroundColor,
             ),
           ],
         ),
@@ -188,7 +380,12 @@ class BFillIconButton extends StatelessWidget {
 class ViewButton extends StatelessWidget {
   const ViewButton({
     super.key,
+    required this.onGridView,
+    required this.onListView,
   });
+
+  final VoidCallback? onGridView;
+  final VoidCallback? onListView;
 
   @override
   Widget build(BuildContext context) {
@@ -202,9 +399,10 @@ class ViewButton extends StatelessWidget {
       color: context.backgroundColor,
       tooltip: Locales.string(context, "View"),
       itemBuilder: (context) => [
-        const PopupMenuItem(
+        PopupMenuItem(
+          onTap: onListView,
           child: ListTile(
-            horizontalTitleGap: 0,
+            horizontalTitleGap: 10,
             leading: Icon(Icons.list),
             title: BText(
               text: "List View",
@@ -212,9 +410,10 @@ class ViewButton extends StatelessWidget {
             ),
           ),
         ),
-        const PopupMenuItem(
+        PopupMenuItem(
+          onTap: onGridView,
           child: ListTile(
-            horizontalTitleGap: 0,
+            horizontalTitleGap: 10,
             leading: Icon(Icons.grid_view),
             title: BText(
               text: "Grid View",
@@ -314,6 +513,7 @@ class _SearchBoxState extends State<SearchBox> {
       onChanged: widget.onChange,
       onSubmitted: widget.onChange,
       focusNode: _focusNode,
+      autofocus: false,
       decoration: InputDecoration(
         filled: true,
         fillColor: Theme.of(context).colorScheme.surface,

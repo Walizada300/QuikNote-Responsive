@@ -27,8 +27,10 @@ class _GetStartScreenState extends State<GetStartScreen> {
               Image.asset('assets/svg/getstarted_shape.png'),
               context.largeSpaceBox,
               BButton(
+                bgColor: context.primaryColor,
                 label: "Get Started",
                 width: 200,
+                labelColor: context.backgroundColor,
                 onPress: () {
                   Navigator.pushReplacement(
                     context,

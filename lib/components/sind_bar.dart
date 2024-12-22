@@ -1,9 +1,20 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'package:provider/provider.dart';
+
 import 'modul.dart';
 
 class BDrawer extends StatelessWidget {
   const BDrawer({
-    super.key,
+    required this.onNote,
+    required this.onTrash,
+    required this.onAbout,
+    required this.selectedIndex,
   });
+
+  final VoidCallback? onNote;
+  final VoidCallback? onTrash;
+  final VoidCallback? onAbout;
+  final int? selectedIndex;
 
   @override
   Widget build(BuildContext context) {
@@ -26,28 +37,28 @@ class BDrawer extends StatelessWidget {
                 ),
                 context.mediumSpaceBox,
                 drawerListTile(
-                  index: 0,
                   iconName: "add",
                   title: "Notes",
-                  onTap: () {},
+                  onTap: onNote!,
+                  tileColor: selectedIndex == 0
+                      ? context.textColor.withAlpha(30)
+                      : null,
                 ),
                 drawerListTile(
-                  index: 1,
                   iconName: "trash",
                   title: "Trash",
-                  onTap: () {},
+                  onTap: onTrash!,
+                  tileColor: selectedIndex == 1
+                      ? context.textColor.withAlpha(30)
+                      : null,
                 ),
                 drawerListTile(
-                  index: 2,
                   iconName: "about",
                   title: "About",
-                  onTap: () {
-                    Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => GetStartScreen(),
-                        ));
-                  },
+                  tileColor: selectedIndex == 2
+                      ? context.textColor.withAlpha(30)
+                      : null,
+                  onTap: onAbout!,
                 ),
               ],
             ),
@@ -169,39 +180,32 @@ class BDrawer extends StatelessWidget {
   }
 }
 
-class drawerListTile extends StatefulWidget {
+class drawerListTile extends StatelessWidget {
   const drawerListTile({
     super.key,
     required this.title,
     required this.iconName,
     required this.onTap,
-    required this.index,
+    required this.tileColor,
   });
   final String? title;
   final String? iconName;
-  final Function() onTap;
-  final int index;
+  final VoidCallback onTap;
+  final Color? tileColor;
 
-  @override
-  State<drawerListTile> createState() => _drawerListTileState();
-}
-
-class _drawerListTileState extends State<drawerListTile> {
-  int selectedIndex = -1;
   @override
   Widget build(BuildContext context) {
     return ListTile(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-      onTap: () {
-        widget.onTap();
-      },
-      horizontalTitleGap: 0,
+      onTap: onTap,
+      tileColor: tileColor,
+      horizontalTitleGap: 10,
       leading: SvgPicture.asset(
-        "assets/svg/${widget.iconName}.svg",
+        "assets/svg/$iconName.svg",
         color: context.backgroundColor,
       ),
       title: BText(
-        text: widget.title,
+        text: title,
         fontSize: 18,
         textAlign: TextAlign.start,
         color: context.backgroundColor,
