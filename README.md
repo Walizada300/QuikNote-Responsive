@@ -22,7 +22,7 @@ To run this project locally:
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/Walizada300/QuikNote.git
+   git clone https://github.com/Walizada300/QuikNote-Responsive.git
    cd QuikNote
    flutter pub get
    flutter run
