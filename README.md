@@ -2,6 +2,8 @@
 
 A modern, responsive note-taking app built with **Flutter** for **Desktop** and **Mobile** platforms.
 
+![Thumnail](https://github.com/user-attachments/assets/f299e692-1203-4296-96be-bf83458a0fdb)
+
 ---
 
 ## ✨ Features
@@ -25,7 +27,7 @@ To run this project locally:
    flutter pub get
    flutter run
 
-![Thumnail](https://github.com/user-attachments/assets/f299e692-1203-4296-96be-bf83458a0fdb)
+
 
 lib/
  ├── main.dart           # Entry point
