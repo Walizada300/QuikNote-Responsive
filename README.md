@@ -26,12 +26,3 @@ To run this project locally:
    cd QuikNote
    flutter pub get
    flutter run
-
-
-
-lib/
- ├── main.dart           # Entry point
- ├── models/             # Note models
- ├── screens/            # UI screens
- ├── widgets/            # Reusable widgets
- └── services/           # Data handling logic
